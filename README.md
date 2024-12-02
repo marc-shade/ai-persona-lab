@@ -1,4 +1,4 @@
-# AI Persona Lab v1.0
+# AI Persona Lab
 
 <img src="https://github.com/user-attachments/assets/64e969c8-e8bc-45ee-a858-1bf19b37998b" style="width: 300px;" align="right" />A powerful AI-driven application for creating and managing dynamic personas, enabling interactive group chats with AI personalities powered by Ollama.
 
