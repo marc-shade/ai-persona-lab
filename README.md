@@ -1,8 +1,8 @@
 # AI Persona Lab v1.0
 
-A powerful AI-driven application for creating and managing dynamic personas, enabling interactive group chats with AI personalities powered by Ollama.
+<img src="https://github.com/user-attachments/assets/64e969c8-e8bc-45ee-a858-1bf19b37998b" style="width: 300px;" align="right" />A powerful AI-driven application for creating and managing dynamic personas, enabling interactive group chats with AI personalities powered by Ollama.
 
-## Key Features
+**Key Features**
 
 - **Dynamic Persona Generation**: Create detailed AI personas with unique backgrounds, personalities, and skills
 - **Customizable Models**: Choose different Ollama models for each persona (mistral, llama2, etc.)
