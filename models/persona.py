@@ -272,6 +272,7 @@ IMPORTANT:
     def create_default_persona(self):
         """Create a default persona to get users started"""
         default_persona = {
+            "id": str(uuid.uuid4()),
             "name": "Assistant",
             "age": 28,
             "nationality": "International",
