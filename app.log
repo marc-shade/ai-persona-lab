@@ -1,0 +1,4 @@
+2024-12-02 07:58:58,996 - INFO - Settings updated: {'default_model': 'mistral:instruct', 'default_temperature': 0.5, 'default_max_tokens': 150}
+2024-12-02 08:01:03,958 - INFO - Settings updated: {'default_model': 'qwq:latest', 'default_temperature': 0.5, 'default_max_tokens': 150}
+2024-12-02 09:00:26,664 - INFO - Settings updated: {'default_model': 'mistral:7b-instruct-v0.2-fp16', 'default_temperature': 0.5, 'default_max_tokens': 150}
+2024-12-02 09:01:37,341 - INFO - Settings updated: {'default_model': 'mistral:7b-instruct-v0.2-fp16', 'default_temperature': 0.5, 'default_max_tokens': 2000}
