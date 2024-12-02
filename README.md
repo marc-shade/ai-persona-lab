@@ -24,7 +24,7 @@ A powerful AI-driven application for creating and managing dynamic personas, ena
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/persona-lab.git
+   git clone https://github.com/marc-shade/ai-persona-lab.git
    cd persona-lab
    ```
 
