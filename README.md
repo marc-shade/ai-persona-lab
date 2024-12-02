@@ -27,7 +27,7 @@
 2. Clone the repository:
    ```bash
    git clone https://github.com/marc-shade/ai-persona-lab.git
-   cd persona-lab
+   cd ai-persona-lab
    ```
 
 3. Install dependencies:
