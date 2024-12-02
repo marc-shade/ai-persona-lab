@@ -9,8 +9,6 @@
 - **Advanced Settings**: Fine-tune temperature and token settings per persona
 - **Interactive Group Chat**: Engage in conversations with multiple AI personas simultaneously
 - **Persona Management**: Add tags, notes, and customize settings for each persona
-- **Beautiful UI**: Clean, modern interface with collapsible sections and avatar generation
-- **Persistent Storage**: All personas and settings are automatically saved
 
 ![Screenshot 2024-12-02 at 9 36 52 AM (4)](https://github.com/user-attachments/assets/ae521600-3631-4c0c-9d7d-5c9dba61cdd3)
 
