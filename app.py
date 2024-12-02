@@ -1,24 +1,18 @@
 import streamlit as st
+from datetime import datetime
 from models.persona import PersonaManager
 from chat.interface import ChatInterface
 import logging
-from datetime import datetime
+
+# Configure the Streamlit page - must be first Streamlit command
+st.set_page_config(page_title="AI Persona Lab", layout="wide", page_icon="🤖", initial_sidebar_state="expanded")
 
 # Setup logging
 logging.basicConfig(
-    filename='app.log',
-    filemode='a',
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger()
-
-st.set_page_config(
-    page_title="AI Persona Lab",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 def initialize_session_state():
     """Initialize session state with default values."""
@@ -26,39 +20,42 @@ def initialize_session_state():
         st.session_state.persona_manager = PersonaManager()
     if 'chat_interface' not in st.session_state:
         st.session_state.chat_interface = ChatInterface()
-        
-    # Load current settings
-    settings = st.session_state.persona_manager.get_settings()
-    
-    # Initialize model settings in session state if not present
     if 'selected_model' not in st.session_state:
-        st.session_state.selected_model = settings.get('default_model')
+        st.session_state.selected_model = st.session_state.persona_manager.settings["default_model"]
     if 'temperature' not in st.session_state:
-        st.session_state.temperature = float(settings.get('default_temperature', 0.7))
+        st.session_state.temperature = st.session_state.persona_manager.settings["default_temperature"]
     if 'max_tokens' not in st.session_state:
-        st.session_state.max_tokens = int(settings.get('default_max_tokens', 150))
-
-def update_settings():
-    """Update settings in the PersonaManager."""
-    new_settings = {
-        'default_model': st.session_state.selected_model,
-        'default_temperature': st.session_state.temperature,
-        'default_max_tokens': st.session_state.max_tokens
-    }
-    st.session_state.persona_manager.update_settings(new_settings)
-    logger.info(f"Settings updated: {new_settings}")
+        st.session_state.max_tokens = st.session_state.persona_manager.settings["default_max_tokens"]
 
 def on_model_change():
-    """Callback when model selection changes."""
-    update_settings()
+    """Callback when model changes."""
+    st.session_state.persona_manager.settings["default_model"] = st.session_state.selected_model
 
 def on_temperature_change():
     """Callback when temperature changes."""
-    update_settings()
+    st.session_state.persona_manager.settings["default_temperature"] = st.session_state.temperature
 
 def on_tokens_change():
     """Callback when max tokens changes."""
-    update_settings()
+    st.session_state.persona_manager.settings["default_max_tokens"] = st.session_state.max_tokens
+
+def generate_persona(occupation):
+    """Generate a new persona with the given occupation"""
+    with st.spinner(f"Generating {occupation} persona..."):
+        try:
+            persona = st.session_state.persona_manager.generate_persona(
+                occupation=occupation,
+                model=st.session_state.selected_model,
+                temperature=st.session_state.temperature,
+                max_tokens=st.session_state.max_tokens
+            )
+            if persona:
+                st.success(f"Created new persona: {persona.name}")
+                st.rerun()
+            else:
+                st.error("Failed to generate persona. Please try again.")
+        except Exception as e:
+            st.error(f"Error generating persona: {str(e)}")
 
 def render_model_settings():
     """Render model settings section in sidebar."""
@@ -108,13 +105,43 @@ def main():
     # Initialize session state
     initialize_session_state()
     
-    st.title("AI Persona Lab")
+    # Initialize an empty list of personas if none exist
+    personas = st.session_state.persona_manager.list_personas()
+    if not personas:
+        st.session_state.persona_manager.create_default_persona()
+        personas = st.session_state.persona_manager.list_personas()
     
-    # Render model settings in sidebar
+    # Sidebar for controls
+    with st.sidebar:
+        st.title("Manage Personas")
+        
+        # Occupation dropdown
+        occupations = [
+            "Professor 👨‍🏫", "Engineer 👷", "Artist 🎨",
+            "Doctor 👨‍⚕️", "Writer ✍️", "Chef 👨‍🍳", "Other"
+        ]
+        selected_occupation = st.selectbox("Select Occupation", occupations)
+        
+        # Custom occupation input if "Other" is selected
+        if selected_occupation == "Other":
+            custom_occupation = st.text_input("Enter Custom Occupation")
+            if st.button("Generate Custom Persona"):
+                if custom_occupation:
+                    generate_persona(custom_occupation)
+                else:
+                    st.warning("Please enter an occupation")
+        else:
+            if st.button("Generate Persona"):
+                # Remove emoji from occupation
+                occupation = selected_occupation.split(" ")[0]
+                generate_persona(occupation)
+    
+    # Render model settings
     render_model_settings()
     
+    st.title("AI Persona Lab")
+    
     # Main content area
-    personas = st.session_state.persona_manager.list_personas()
     if not personas:
         st.info("Add some personas using the sidebar to start chatting!")
         return
