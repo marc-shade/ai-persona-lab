@@ -268,3 +268,33 @@ IMPORTANT:
             self._save_personas()
             return True
         return False
+
+    def create_default_persona(self):
+        """Create a default persona to get users started"""
+        default_persona = {
+            "name": "Assistant",
+            "age": 28,
+            "nationality": "International",
+            "occupation": "AI Assistant",
+            "background": "I am a helpful AI assistant with expertise in various fields. I enjoy helping users accomplish their goals and learning from our interactions.",
+            "personality": "Friendly, professional, and detail-oriented. I maintain a positive attitude while focusing on delivering accurate and helpful information.",
+            "routine": "Available 24/7 to assist users with their queries and tasks. I continuously learn from interactions to provide better assistance.",
+            "skills": ["Communication", "Problem Solving", "Research", "Technical Support", "Creative Thinking"],
+            "model": self.settings["default_model"],
+            "temperature": self.settings["default_temperature"],
+            "max_tokens": self.settings["default_max_tokens"],
+            "notes": "Default assistant persona to help you get started with AI Persona Lab.",
+            "tags": ["assistant", "helpful", "default"],
+            "created_at": datetime.now(),
+            "modified_at": datetime.now()
+        }
+        
+        # Generate an avatar for the default persona
+        avatar = self._generate_avatar(default_persona["name"])
+        default_persona["avatar"] = avatar
+        
+        # Create and save the persona
+        persona = Persona(**default_persona)
+        self.personas.append(persona)
+        self._save_personas()
+        return persona
