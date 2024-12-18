@@ -281,7 +281,7 @@ IMPORTANT:
             "personality": "Friendly, professional, and detail-oriented. I maintain a positive attitude while focusing on delivering accurate and helpful information.",
             "routine": "Available 24/7 to assist users with their queries and tasks. I continuously learn from interactions to provide better assistance.",
             "skills": ["Communication", "Problem Solving", "Research", "Technical Support", "Creative Thinking"],
-            "model": self.settings["default_model"],
+            "model": self.settings["default_model"] if self.settings["default_model"] is not None else "default_model_name",
             "temperature": self.settings["default_temperature"],
             "max_tokens": self.settings["default_max_tokens"],
             "notes": "Default assistant persona to help you get started with AI Persona Lab.",
