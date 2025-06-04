@@ -67,7 +67,7 @@
 ## Project Structure
 
 ```
-persona-lab/
+ai-persona-lab/
 ├── app.py              # Main Streamlit application and UI
 ├── models/
 │   └── persona.py      # Persona class and management logic
