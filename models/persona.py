@@ -251,6 +251,17 @@ IMPORTANT:
         """Generate an avatar URL using DiceBear API."""
         seed = str(uuid.uuid5(uuid.NAMESPACE_DNS, name))
         return f"https://api.dicebear.com/7.x/personas/svg?seed={seed}"
+
+    def _get_first_available_model(self) -> str:
+        """Get the first available model from Ollama, or a sensible default."""
+        models = self.get_available_models()
+        if models:
+            # Prefer instruction-tuned models
+            for model in models:
+                if 'instruct' in model.lower() or 'chat' in model.lower():
+                    return model
+            return models[0]
+        return "mistral:instruct"  # Fallback default
     
     def list_personas(self) -> List[Persona]:
         """Return list of all personas."""
@@ -281,7 +292,7 @@ IMPORTANT:
             "personality": "Friendly, professional, and detail-oriented. I maintain a positive attitude while focusing on delivering accurate and helpful information.",
             "routine": "Available 24/7 to assist users with their queries and tasks. I continuously learn from interactions to provide better assistance.",
             "skills": ["Communication", "Problem Solving", "Research", "Technical Support", "Creative Thinking"],
-            "model": self.settings["default_model"] if self.settings["default_model"] is not None else "default_model_name",
+            "model": self.settings["default_model"] if self.settings["default_model"] is not None else self._get_first_available_model(),
             "temperature": self.settings["default_temperature"],
             "max_tokens": self.settings["default_max_tokens"],
             "notes": "Default assistant persona to help you get started with AI Persona Lab.",

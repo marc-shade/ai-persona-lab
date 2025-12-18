@@ -93,6 +93,13 @@ class ChatInterface:
                 st.divider()
         
         # Main chat area
+        # Chat controls
+        col1, col2 = st.columns([4, 1])
+        with col2:
+            if st.button("Clear Chat", key="clear_chat"):
+                st.session_state.messages = []
+                st.rerun()
+
         # Display chat messages
         for message in st.session_state.messages:
             with st.chat_message(message["role"], avatar=message.get("avatar")):
@@ -130,11 +137,11 @@ class ChatInterface:
             Daily Routine: {persona.routine}
             Personality: {persona.personality}
             Skills: {', '.join(persona.skills)}
-            
+
             Respond to messages in character, incorporating your background, personality, and expertise.
             Keep responses concise (2-3 sentences) and natural.
             """
-            
+
             response = requests.post(
                 "http://localhost:11434/api/generate",
                 json={
@@ -146,12 +153,29 @@ class ChatInterface:
                         "temperature": persona.temperature,
                         "num_predict": persona.max_tokens
                     }
-                }
+                },
+                timeout=60
             )
             response.raise_for_status()
             result = response.json()
             return result["response"].strip()
-            
+
+        except requests.exceptions.ConnectionError:
+            print(f"Connection error for {persona.name}: Ollama not running")
+            return f"*{persona.name} is unavailable* - Ollama is not running. Please start Ollama with `ollama serve`."
+        except requests.exceptions.Timeout:
+            print(f"Timeout for {persona.name}")
+            return f"*{persona.name} is thinking...* Response timed out. The model may be busy or overloaded."
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                print(f"Model not found for {persona.name}: {persona.model}")
+                return f"*{persona.name} needs a different model* - Model '{persona.model}' not found. Please update the model in persona settings."
+            elif e.response.status_code == 500:
+                print(f"Server error for {persona.name}")
+                return f"*{persona.name} encountered an issue* - Ollama server error. Try restarting Ollama."
+            else:
+                print(f"HTTP error for {persona.name}: {e}")
+                return f"*{persona.name} is unavailable* - Server returned error {e.response.status_code}."
         except Exception as e:
             print(f"Error getting response from {persona.name}: {str(e)}")
-            return f"Sorry, I'm having trouble responding right now. Error: {str(e)}"
+            return f"*{persona.name} couldn't respond* - An unexpected error occurred. Please try again."

@@ -77,24 +77,22 @@ def render_model_settings():
                 help="Select the default model for generating personas and responses"
             )
             
-            # Temperature setting
+            # Temperature setting (key links to session state automatically)
             st.slider(
                 "Temperature",
                 min_value=0.0,
                 max_value=1.0,
-                value=st.session_state.temperature,
                 step=0.1,
                 key='temperature',
                 on_change=on_temperature_change,
                 help="Higher values make output more random, lower values more deterministic"
             )
-            
-            # Max tokens setting
+
+            # Max tokens setting (key links to session state automatically)
             st.number_input(
                 "Max Tokens",
                 min_value=50,
                 max_value=2000,
-                value=st.session_state.max_tokens,
                 step=50,
                 key='max_tokens',
                 on_change=on_tokens_change,
@@ -331,6 +329,16 @@ def main():
                 with st.expander("Metadata", expanded=False):
                     st.write(f"Created: {persona.created_at.strftime('%Y-%m-%d %H:%M')}")
                     st.write(f"Last Modified: {persona.modified_at.strftime('%Y-%m-%d %H:%M')}")
+
+                # Delete persona button
+                with st.expander("Danger Zone", expanded=False):
+                    st.warning("This action cannot be undone!")
+                    if st.button(f"Delete {persona.name}", key=f"delete_{persona.id}", type="primary"):
+                        if st.session_state.persona_manager.remove_persona(persona.id):
+                            st.success(f"Deleted persona: {persona.name}")
+                            st.rerun()
+                        else:
+                            st.error("Failed to delete persona")
     
     # Chat interface at the bottom
     st.markdown("---")
