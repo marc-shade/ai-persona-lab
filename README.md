@@ -1,3 +1,11 @@
+[![Version](https://img.shields.io/github/v/release/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/releases)
+[![Stars](https://img.shields.io/github/stars/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/stargazers)
+[![Forks](https://img.shields.io/github/forks/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/network/members)
+[![License](https://img.shields.io/github/license/marc-shade/ai-persona-lab?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square&logo=ollama&logoColor=white)](https://ollama.ai)
+
 # AI Persona Lab
 
 <img src="https://github.com/user-attachments/assets/64e969c8-e8bc-45ee-a858-1bf19b37998b" style="width: 300px;" align="right" />A powerful AI-driven application for creating and managing dynamic personas, enabling interactive group chats with AI personalities powered by Ollama.
@@ -10,7 +18,7 @@
 - **Interactive Group Chat**: Engage in conversations with multiple AI personas simultaneously
 - **Persona Management**: Add tags, notes, and customize settings for each persona
 
-![Screenshot 2024-12-02 at 9 36 52 AM (4)](https://github.com/user-attachments/assets/ae521600-3631-4c0c-9d7d-5c9dba61cdd3)
+![Screenshot 2024-12-02 at 9 36 52 AM (4)](https://github.com/user-attachments/assets/ae521600-3631-4c0c-9d7d-5c9dba61cdd3)
 
 ## Requirements
 
