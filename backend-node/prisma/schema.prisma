@@ -1,0 +1,369 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  firstName       String?
+  lastName        String?
+  company         String?
+  role            UserRole @default(USER)
+  isActive        Boolean  @default(true)
+  emailVerified   Boolean  @default(false)
+  isAdmin         Boolean  @default(false)
+  bypassBilling   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+
+  // OAuth provider IDs
+  googleId        String?  @unique
+  githubId        String?  @unique
+  avatarUrl       String?
+
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  subscription    Subscription?
+  personas        Persona[]
+  experiments     Experiment[]
+  groups          Group[]
+  groupMembers    GroupMember[]
+  messages        Message[]
+  userSettings    UserSettings?
+  icps            ICP[]
+
+
+  @@map("users")
+}
+
+model Organization {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  users           User[]
+  personas        Persona[]
+  experiments     Experiment[]
+  groups          Group[]
+  subscription    Subscription?
+  icps            ICP[]
+
+  @@map("organizations")
+}
+
+model Subscription {
+  id                   String            @id @default(cuid())
+  stripeCustomerId     String            @unique
+  stripeSubscriptionId String?           @unique
+  stripePriceId        String?
+  status               SubscriptionStatus @default(INACTIVE)
+  plan                 SubscriptionPlan   @default(FREE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean           @default(false)
+  personasLimit        Int               @default(5)
+  experimentsLimit     Int               @default(2)
+  apiCallsLimit        Int               @default(100)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  userId          String?           @unique
+  user            User?             @relation(fields: [userId], references: [id])
+  organizationId  String?           @unique
+  organization    Organization?     @relation(fields: [organizationId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model Persona {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?
+  avatar          String?
+  age             Int?
+  gender          String?
+  location        String?
+  occupation      String?
+  income          String?
+  education       String?
+  personality     Json        @default("{}")
+  interests       String[]
+  values          String[]
+  painPoints      String[]
+  goals           String[]
+  communicationStyle String?
+  decisionMaking  String?
+  mediaConsumption String[]
+  model           String      @default("gpt-4")
+  temperature     Float       @default(0.7)
+  maxTokens       Int         @default(500)
+  systemPrompt    String?
+  tags            String[]
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  metadata        Json        @default("{}") 
+
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  experimentParticipants ExperimentParticipant[]
+  groupMembers    GroupMember[]
+  messages        Message[]
+  responses       Response[]
+
+  @@map("personas")
+}
+
+model Experiment {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  type            ExperimentType
+  status          ExperimentStatus  @default(DRAFT)
+  config          Json              @default("{}")
+  questions       Json              @default("[]")
+  results         Json              @default("{}")
+  metrics         Json              @default("{}")
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  metadata        Json              @default("{}") 
+
+
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  organizationId  String?
+  organization    Organization?     @relation(fields: [organizationId], references: [id])
+
+  participants    ExperimentParticipant[]
+  responses       Response[]
+
+  @@map("experiments")
+}
+
+model ExperimentParticipant {
+  id              String      @id @default(cuid())
+  experimentId    String
+  experiment      Experiment  @relation(fields: [experimentId], references: [id])
+  personaId       String
+  persona         Persona     @relation(fields: [personaId], references: [id])
+  status          ParticipantStatus @default(INVITED)
+  joinedAt        DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime    @default(now())
+
+  @@unique([experimentId, personaId])
+  @@map("experiment_participants")
+}
+
+model Group {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?
+  type            GroupType   @default(FOCUS_GROUP)
+  status          GroupStatus @default(ACTIVE)
+  config          Json        @default("{}")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  lastActivity    DateTime?   @default(now())
+
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  members         GroupMember[]
+  messages        Message[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id              String      @id @default(cuid())
+  groupId         String
+  group           Group       @relation(fields: [groupId], references: [id])
+  personaId       String
+  persona         Persona     @relation(fields: [personaId], references: [id])
+  role            MemberRole  @default(PARTICIPANT)
+  joinedAt        DateTime    @default(now())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, personaId])
+  @@map("group_members")
+}
+
+model Message {
+  id              String      @id @default(cuid())
+  content         String
+  sender          String
+  type            MessageType @default(TEXT)
+  groupId         String
+  group           Group       @relation(fields: [groupId], references: [id])
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now())
+  personaId       String?
+  persona         Persona?    @relation(fields: [personaId], references: [id])
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  replyToId       String?
+  replyTo         Message?    @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies         Message[]   @relation("MessageReplies")
+
+  @@map("messages")
+}
+
+model Response {
+  id              String      @id @default(cuid())
+  content         String
+  type            ResponseType @default(TEXT)
+  experimentId    String
+  experiment      Experiment  @relation(fields: [experimentId], references: [id])
+  personaId       String
+  persona         Persona     @relation(fields: [personaId], references: [id])
+  questionId      String?
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now())
+
+  @@map("responses")
+}
+
+model ICP {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  industry        String?
+  productType     String?
+  businessModel   String?
+  goals           String[]
+  ageRangeMin     Int?
+  ageRangeMax     Int?
+  locations       String[]
+  incomeMin       Int?
+  incomeMax       Int?
+  education       String?
+  occupation      String?
+  values          String[]
+  interests       String[]
+  lifestyle       String[]
+  buyingBehaviors String[]
+  painPoints      String[]
+  primaryGoals    String[]
+  secondaryGoals  String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          String
+  user            User   @relation(fields: [userId], references: [id])
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("icps")
+}
+
+model UserSettings {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  user            User        @relation(fields: [userId], references: [id])
+  aiProvider      String      @default("mistral")
+  openaiApiKey    String?
+  mistralApiKey   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("user_settings")
+}
+
+
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum ExperimentType {
+  SURVEY
+  AB_TEST
+  FOCUS_GROUP
+  INTERVIEW
+  CUSTOMER_JOURNEY
+}
+
+enum ExperimentStatus {
+  DRAFT
+  RUNNING
+  COMPLETED
+  PAUSED
+  CANCELED
+}
+
+enum ParticipantStatus {
+  INVITED
+  JOINED
+  COMPLETED
+  DROPPED_OUT
+}
+
+enum GroupType {
+  FOCUS_GROUP
+  CHAT_SIMULATION
+  DEBATE
+  BRAINSTORM
+}
+
+enum GroupStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum MemberRole {
+  MODERATOR
+  PARTICIPANT
+  OBSERVER
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM
+  REACTION
+  IMAGE
+}
+
+enum ResponseType {
+  TEXT
+  RATING
+  CHOICE
+  BOOLEAN
+}
