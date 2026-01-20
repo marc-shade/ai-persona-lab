@@ -1,7 +1,10 @@
 import json
-import requests
+import uuid
 from datetime import datetime
 from typing import Optional
+
+import requests
+
 from models.persona import Persona
 
 OLLAMA_API_URL = "http://localhost:11434/api"
@@ -38,31 +41,35 @@ Make the persona feel authentic with:
 
 Ensure the response is ONLY the JSON object with no additional text or markdown formatting."""
 
+
 def generate_persona(occupation: str) -> Optional[Persona]:
     """Generate a new persona with the given occupation using Ollama."""
+    response = None
     try:
         # Request JSON format explicitly
         response = requests.post(
             f"{OLLAMA_API_URL}/generate",
             json={
                 "model": "mistral:instruct",
-                "prompt": PERSONA_PROMPT.format(occupation=occupation),
+                # Avoid str.format brace conflicts by simple replacement
+                "prompt": PERSONA_PROMPT.replace("{occupation}", occupation),
                 "format": "json",
                 "stream": False,
                 "options": {
                     "temperature": 0.7,
                     "num_predict": 1000,
-                }
-            }
+                },
+            },
         )
         response.raise_for_status()
-        
+
         # Parse the response
         result = response.json()
         persona_data = json.loads(result["response"])
-        
+
         # Create new persona from the structured data
         return Persona(
+            id=str(uuid.uuid4()),
             name=persona_data["name"],
             age=persona_data["age"],
             nationality=persona_data["nationality"],
@@ -71,14 +78,14 @@ def generate_persona(occupation: str) -> Optional[Persona]:
             routine=persona_data["routine"],
             personality=persona_data["personality"],
             skills=persona_data["skills"],
+            avatar=f"https://api.dicebear.com/7.x/personas/svg?seed={uuid.uuid5(uuid.NAMESPACE_DNS, persona_data['name'])}",
             model=persona_data["model_config"]["model"],
             temperature=persona_data["model_config"]["temperature"],
             max_tokens=persona_data["model_config"]["max_tokens"],
             created_at=datetime.now(),
             modified_at=datetime.now(),
-            version=1
         )
-        
+
     except Exception as e:
         print(f"Error generating persona: {str(e)}")
         if response and response.text:

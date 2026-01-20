@@ -2,7 +2,9 @@ import streamlit as st
 from datetime import datetime
 from models.persona import PersonaManager
 from chat.interface import ChatInterface
+from template_management_ui import render_template_management
 import logging
+import os
 
 # Configure the Streamlit page - must be first Streamlit command
 st.set_page_config(page_title="AI Persona Lab", layout="wide", page_icon="🤖", initial_sidebar_state="expanded")
@@ -21,11 +23,14 @@ def initialize_session_state():
     if 'chat_interface' not in st.session_state:
         st.session_state.chat_interface = ChatInterface()
     if 'selected_model' not in st.session_state:
-        st.session_state.selected_model = st.session_state.persona_manager.settings["default_model"]
+        st.session_state.selected_model = st.session_state.persona_manager.settings.get("default_model", "mistral:instruct")
     if 'temperature' not in st.session_state:
-        st.session_state.temperature = st.session_state.persona_manager.settings["default_temperature"]
+        st.session_state.temperature = st.session_state.persona_manager.settings.get("default_temperature", 0.7)
     if 'max_tokens' not in st.session_state:
-        st.session_state.max_tokens = st.session_state.persona_manager.settings["default_max_tokens"]
+        st.session_state.max_tokens = st.session_state.persona_manager.settings.get("default_max_tokens", 500)
+    if 'is_admin' not in st.session_state:
+        # Check for admin mode from environment
+        st.session_state.is_admin = os.getenv('ADMIN_MODE', 'false').lower() == 'true'
 
 def on_model_change():
     """Callback when model changes."""
@@ -102,13 +107,26 @@ def render_model_settings():
 def main():
     # Initialize session state
     initialize_session_state()
-    
+
+    # Navigation
+    st.sidebar.title("AI Persona Lab")
+
+    # Main navigation
+    app_mode = st.sidebar.selectbox(
+        "Choose Mode",
+        ["🤖 Persona Chat", "🎯 Template Management"]
+    )
+
+    if app_mode == "🎯 Template Management":
+        render_template_management()
+        return
+
     # Initialize an empty list of personas if none exist
     personas = st.session_state.persona_manager.list_personas()
     if not personas:
         st.session_state.persona_manager.create_default_persona()
         personas = st.session_state.persona_manager.list_personas()
-    
+
     # Sidebar for controls
     with st.sidebar:
         st.title("Manage Personas")
