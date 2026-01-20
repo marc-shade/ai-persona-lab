@@ -1,16 +1,28 @@
+[![Version](https://img.shields.io/github/v/release/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/releases)
+[![Stars](https://img.shields.io/github/stars/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/stargazers)
+[![Forks](https://img.shields.io/github/forks/marc-shade/ai-persona-lab?style=flat-square)](https://github.com/marc-shade/ai-persona-lab/network/members)
+[![License](https://img.shields.io/github/license/marc-shade/ai-persona-lab?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square&logo=ollama&logoColor=white)](https://ollama.ai)
+
 # AI Persona Lab
 
 <img src="https://github.com/user-attachments/assets/64e969c8-e8bc-45ee-a858-1bf19b37998b" style="width: 300px;" align="right" />A powerful AI-driven application for creating and managing dynamic personas, enabling interactive group chats with AI personalities powered by Ollama.
 
-**Key Features**
+## Features
 
 - **Dynamic Persona Generation**: Create detailed AI personas with unique backgrounds, personalities, and skills
 - **Customizable Models**: Choose different Ollama models for each persona (mistral, llama2, etc.)
+- **Smart Model Selection**: Automatically prefers instruction-tuned models for better responses
 - **Advanced Settings**: Fine-tune temperature and token settings per persona
 - **Interactive Group Chat**: Engage in conversations with multiple AI personas simultaneously
 - **Persona Management**: Add tags, notes, and customize settings for each persona
+- **Delete Personas**: Remove personas you no longer need with confirmation warning
+- **Clear Chat History**: One-click button to clear conversation history
+- **User-Friendly Errors**: Helpful error messages when Ollama is unavailable or models are missing
 
-![Screenshot 2024-12-02 at 9 36 52 AM (4)](https://github.com/user-attachments/assets/ae521600-3631-4c0c-9d7d-5c9dba61cdd3)
+![Screenshot 2024-12-02 at 9 36 52 AM (4)](https://github.com/user-attachments/assets/ae521600-3631-4c0c-9d7d-5c9dba61cdd3)
 
 ## Requirements
 
@@ -57,12 +69,14 @@
    - Add/remove tags and update notes
    - Customize model settings per persona
    - Toggle personas active/inactive in chat
+   - Delete personas via the "Danger Zone" section
 
 4. Chat Interface:
    - Select which personas to include in the conversation
    - Start conversations with natural language
    - Watch personas interact based on their unique characteristics
    - Each persona maintains context and personality throughout the chat
+   - Use "Clear Chat" to start fresh conversations
 
 ## Project Structure
 
@@ -82,9 +96,9 @@ ai-persona-lab/
 
 ### Default Settings
 - Ollama API URL: `http://localhost:11434/api`
-- Default Model: `mistral:instruct`
+- Default Model: Auto-selects best available (prefers instruction-tuned models)
 - Temperature: `0.7`
-- Max Tokens: `500`
+- Max Tokens: `1000`
 - Avatar Size: `200x200`
 
 ### Model Settings
@@ -96,6 +110,7 @@ Each persona can be configured with:
 
 ### Data Storage
 - Personas are automatically saved to `data/personas.json`
+- Settings saved to `data/settings.json`
 - Chat history is maintained during the session
 - All changes are persisted immediately
 
@@ -107,13 +122,20 @@ Common issues and solutions:
    - Ensure Ollama server is running (`ollama serve`)
    - Check if the API URL is accessible (`http://localhost:11434/api`)
    - Verify firewall settings
+   - The app will show: *"Ollama is not running. Please start Ollama with `ollama serve`"*
 
-2. **Model Loading Issues**
+2. **Model Not Found**
    - Pull the model explicitly: `ollama pull mistral:instruct`
    - Check available models: `ollama list`
-   - Ensure sufficient disk space
+   - Update persona model settings if needed
+   - The app will show: *"Model 'X' not found. Please update the model in persona settings"*
 
-3. **UI Issues**
+3. **Response Timeout**
+   - The model may be busy processing other requests
+   - Try again or use a smaller/faster model
+   - The app will show: *"Response timed out. The model may be busy or overloaded"*
+
+4. **UI Issues**
    - Clear browser cache
    - Restart Streamlit server
    - Check console for JavaScript errors
