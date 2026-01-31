@@ -9,6 +9,35 @@ import os
 # Configure the Streamlit page - must be first Streamlit command
 st.set_page_config(page_title="AI Persona Lab", layout="wide", page_icon="🤖", initial_sidebar_state="expanded")
 
+# Remove chat message truncation - always show full AI responses
+st.markdown("""
+<style>
+    /* Remove max-height restriction on chat message content */
+    [data-testid="stChatMessageContent"] {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    /* Hide the Show More / Show Less toggle button */
+    [data-testid="stChatMessageContent"] + button,
+    .stChatMessage button[kind="showMore"],
+    .stChatMessage [data-testid="stExpanderToggleIcon"] {
+        display: none !important;
+    }
+    /* Ensure chat message containers expand fully */
+    .stChatMessage {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    /* Hide Streamlit keyboard shortcut dialog and hint */
+    div[role="dialog"]:has(kbd),
+    [data-testid="stShortcutDialog"],
+    div[data-modal-container],
+    .stModal:has(kbd) {
+        display: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,

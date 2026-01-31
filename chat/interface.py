@@ -126,19 +126,27 @@ class ChatInterface:
                 # Get the saved state or default to True for new personas
                 is_active = st.session_state.persona_active_states.get(persona.id, True)
 
-                if st.toggle("Active", value=is_active, key=f"toggle_{persona.id}"):
-                    st.session_state.active_personas.add(persona.id)
-                    st.session_state.persona_active_states[persona.id] = True
-                else:
-                    st.session_state.active_personas.discard(persona.id)
-                    st.session_state.persona_active_states[persona.id] = False
+                def _on_toggle(pid=persona.id):
+                    toggled = st.session_state[f"toggle_{pid}"]
+                    if toggled:
+                        st.session_state.active_personas.add(pid)
+                    else:
+                        st.session_state.active_personas.discard(pid)
+                    st.session_state.persona_active_states[pid] = toggled
+
+                st.toggle(
+                    "Active",
+                    value=is_active,
+                    key=f"toggle_{persona.id}",
+                    on_change=_on_toggle,
+                )
                 st.divider()
 
         # Main chat area
         # Display chat messages
         for message in st.session_state.messages:
             with st.chat_message(message["role"], avatar=message.get("avatar")):
-                st.write(f"**{message.get('name', 'You')}:** {message['content']}")
+                st.markdown(f"**{message.get('name', 'You')}:** {message['content']}")
 
         # Chat input
         if prompt := st.chat_input("Type your message..."):
