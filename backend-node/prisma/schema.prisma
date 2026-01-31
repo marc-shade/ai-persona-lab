@@ -38,6 +38,7 @@ model User {
   messages        Message[]
   userSettings    UserSettings?
   icps            ICP[]
+  competitorAnalyses CompetitorAnalysis[]
 
 
   @@map("users")
@@ -57,6 +58,7 @@ model Organization {
   groups          Group[]
   subscription    Subscription?
   icps            ICP[]
+  competitorAnalyses CompetitorAnalysis[]
 
   @@map("organizations")
 }
@@ -366,4 +368,76 @@ enum ResponseType {
   RATING
   CHOICE
   BOOLEAN
+}
+
+enum CompetitorAnalysisStatus {
+  DRAFT
+  SCRAPING
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+enum ScrapeStatus {
+  PENDING
+  SCRAPING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model CompetitorAnalysis {
+  id                 String                    @id @default(cuid())
+  name               String
+  description        String?
+  status             CompetitorAnalysisStatus  @default(DRAFT)
+  productName        String
+  productUrl         String?
+  productCategory    String?
+  productDescription String?
+  productStrengths   String[]
+  productWeaknesses  String[]
+  summary            Json?
+  overallScore       Float?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  userId             String
+  user               User                      @relation(fields: [userId], references: [id])
+  organizationId     String?
+  organization       Organization?             @relation(fields: [organizationId], references: [id])
+
+  competitors        Competitor[]
+
+  @@map("competitor_analyses")
+}
+
+model Competitor {
+  id              String        @id @default(cuid())
+  name            String
+  url             String?
+  description     String?
+  category        String?
+  tagline         String?
+  features        String[]
+  pricing         String?
+  strengths       String[]
+  weaknesses      String[]
+  scrapedAt       DateTime?
+  scrapeStatus    ScrapeStatus  @default(PENDING)
+  scrapeError     String?
+  rawScrapedData  Json?
+  overallScore    Float?
+  featureScore    Float?
+  pricingScore    Float?
+  uxScore         Float?
+  marketScore     Float?
+  scores          Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  analysisId      String
+  analysis        CompetitorAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@map("competitors")
 }
