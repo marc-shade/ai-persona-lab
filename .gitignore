@@ -7,13 +7,25 @@ __pycache__/
 *$py.class
 *.so
 .Python
-.env
-.venv
 env/
 venv/
+.venv/
 *.egg-info/
 dist/
 build/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
 
 # IDE
 .idea/
@@ -24,3 +36,9 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.mypy_cache/
